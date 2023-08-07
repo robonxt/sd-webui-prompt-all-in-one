@@ -1,4 +1,4 @@
-export default (tags) => {
+export default (tags, autoBreakBeforeWrap = false, autoBreakAfterWrap = false) => {
     if (tags === null || tags === undefined || tags === false || tags === "" || tags.trim() === "") return []
 
     tags = tags.replace(/，/g, ',') // 中文逗号
@@ -64,7 +64,24 @@ export default (tags) => {
                     endBracketChar = brackets[char]
                     temp += char
                 } else {
-                    temp += char
+                    if (char === " " && temp.trim() === 'BREAK') {
+                        result.push(temp.trim())
+                        bracketCount = 0
+                        startBracketChar = ''
+                        endBracketChar = ''
+                        temp = ''
+                    } else {
+                        temp += char
+                        if (temp.endsWith(' BREAK')) {
+                            temp = temp.substring(0, temp.length - ' BREAK'.length)
+                            result.push(temp.trim())
+                            result.push('BREAK')
+                            bracketCount = 0
+                            startBracketChar = ''
+                            endBracketChar = ''
+                            temp = ''
+                        }
+                    }
                 }
             } else {
                 // 前面有括号
@@ -92,6 +109,44 @@ export default (tags) => {
     if (temp !== '') {
         result.push(temp.trim())
     }
+
+    /*let result2 = []
+    let len = result.length
+    for (let i = 0; i < len; i++) {
+        let value = result[i]
+        if (value === "BREAK") {
+            if (autoBreakBeforeWrap) {
+                // 如果是在“BREAK”关键词前面加换行符
+                // 判断上一个是否换行符
+                if (i > 0) {
+                    let prev = result[i - 1]
+                    if (prev === "\n" || prev === "\r\n") {
+                        // 上一个已经是换行了
+                    } else {
+                        // 上一个不是换行
+                        result2.push("\n")
+                    }
+                }
+            }
+            result2.push(value)
+            if (autoBreakAfterWrap) {
+                // 如果是在“BREAK”关键词后面加换行符
+                // 判断下一个是否换行符
+                if (i + 1 < len) {
+                    let next = result[i + 1]
+                    if (next === "\n" || next === "\r\n") {
+                        // 下一个已经是换行了
+                    } else {
+                        // 下一个不是换行
+                        result2.push("\n")
+                    }
+                }
+            }
+        } else {
+            result2.push(value)
+        }
+    }*/
+
     return result
 }
 
